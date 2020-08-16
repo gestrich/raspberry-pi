@@ -4,13 +4,25 @@ set -u
 
 function buildDockerImage(){
   #Build Docker image initially
-  docker build -t bill-swift-hello-world -f Dockerfile .
+  #docker build -t bill-swift-hello-world -f Dockerfile .
+  ssh_key="$(cat 'id_rsa')"
+  echo "$ssh_key"
+  DOCKER_BUILDKIT=1 docker build -t bill-swift-hello-world -f Dockerfile --build-arg SSH_PRIVATE_KEY="$ssh_key" .
 }
 
+#Had to run ssh-add
 function deploy(){
   #docker run -ti b305f265035b /bin/bash
-  docker run -ti bill-swift-hello-world:latest /bin/bash
-  scp .build/debug/raspberry-pi pi@192.168.1.217:/home/pi/HelloWorld
+  #WORKDIR /app
+  #COPY . ./
+  #RUN swift build --jobs 1
+  #COPY --from=build /app/.build/debug/raspberry-pi output
+  #cd /app
+
+  #DOCKER_BUILDKIT=1 docker build --ssh default -t bill-swift-hello-world -f Dockerfile .
+  #docker build -t bill-swift-hello-world -f Dockerfile .
+  docker run --rm bill-swift-hello-world:latest
+  #scp .build/debug/raspberry-pi pi@192.168.1.217:/home/pi/HelloWorld
 } 
 
 #To Run on Device
