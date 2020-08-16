@@ -70,8 +70,8 @@ repeatWithInterval(interval: 3) {
     let newValue = (currentValue == 1) ? 0 : 1
     gpOut.value = newValue
     print("Changing the value")
-//    let voltage = mcpVoltage(outputCode: mcpReadData(a2dChannel: 0), voltageReference: 3.2)
-//    print("SPI value 0 = \(voltage)")
+    let voltage = mcpVoltage(outputCode: mcpReadData(a2dChannel: 0), voltageReference: 3.2)
+    print("SPI value 0 = \(voltage)")
     
 //    let spiVal1 = mcpReadData(a2dChannel: 1)
 //    print("SPI value 1 = \(spiVal1)")
