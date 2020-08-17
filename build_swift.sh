@@ -21,12 +21,10 @@ function deploy(){
 
   #DOCKER_BUILDKIT=1 docker build --ssh default -t bill-swift-hello-world -f Dockerfile .
   #docker build -t bill-swift-hello-world -f Dockerfile .
-  docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest swift build 
-  #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest pwd 
+  #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest swift build 
+  #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest ls 
   #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest swift build --build-path .build_linux
-  #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest swift build IOSVersions -c release
-  #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest swift build
-  #docker run --rm bill-swift-hello-world:latest /bin/zsh ./build_swift.sh
+  docker run --rm bill-swift-hello-world:latest /bin/zsh ./build_swift.sh
   #scp .build/debug/raspberry-pi pi@192.168.1.217:/home/pi/HelloWorld
 } 
 
