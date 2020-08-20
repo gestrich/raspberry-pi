@@ -49,18 +49,18 @@ func mcpVoltage(outputCode: UInt64, voltageReference: Double) -> Double {
 
 print("Raspberry Pi Tests Beginning")
 
-var gpOut = GPIO(name: "P18",id: 18)
+var gpOut = GPIO(name: "P17",id: 17)
 
 gpOut.direction = .OUT
 
-var gpIn = GPIO(name: "P17",id: 17)
+//var gpIn = GPIO(name: "P17",id: 17)
 
-gpIn.direction = .IN
+//gpIn.direction = .IN
 
-gpIn.onRaising{
-    gpio in
-    print("Transition to 1, current value:" + String(gpio.value))
-}
+//gpIn.onRaising{
+//    gpio in
+//    print("Transition to 1, current value:" + String(gpio.value))
+//}
 
 var turnOn = false
 

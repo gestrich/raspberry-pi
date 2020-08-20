@@ -33,4 +33,4 @@ RUN touch /root/.ssh/known_hosts
 RUN ssh-keyscan 192.168.1.217 >> /root/.ssh/known_hosts
 
 #RUN --mount=type=ssh,id=bitbucket scp -v .build/debug/raspberry-pi pi@192.168.1.217:/home/pi/HelloWorld 
-RUN scp -i ~/.ssh/id_rsa -v .build/debug/raspberry-pi pi@192.168.1.217:/home/pi/HelloWorld 
+#RUN scp -i ~/.ssh/id_rsa -v .build/debug/raspberry-pi pi@192.168.1.217:/home/pi/HelloWorld 
