@@ -4,6 +4,8 @@ set -u
 
 TAG_NAME="pi-container"
 PI_PROJECT_DIR="/home/pi"
+EXECUTABLE_NAME="pi"
+
 function buildDockerImage(){
   #Build Docker image initially
   #docker build -t bill-swift-hello-world -f Dockerfile .
@@ -14,78 +16,62 @@ function buildDockerImage(){
 
 #Had to run ssh-add
 function deploy(){
-  #docker run -ti b305f265035b /bin/bash
-  #WORKDIR /app
-  #COPY . ./
-  #RUN swift build --jobs 1
-  #COPY --from=build /app/.build/debug/raspberry-pi output
-  #cd /app
-
-  #DOCKER_BUILDKIT=1 docker build --ssh default -t bill-swift-hello-world -f Dockerfile .
-  #docker build -t bill-swift-hello-world -f Dockerfile .
   echo "STAGE: deploy start"
+  docker stop $TAG_NAME
+  docker rm $TAG_NAME
   docker run --name $TAG_NAME --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest ./run.sh buildSwift 
   pushToPi
+  runPi
   echo "STAGE: deploy done"
-  #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest pwd 
-  #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest swift build --build-path .build_linux
-  #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest swift build IOSVersions -c release
-  #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest swift build
-  #docker run --rm bill-swift-hello-world:latest /bin/zsh ./build_swift.sh
-  #scp .build/debug/raspberry-pi pi@192.168.1.217:/home/pi/HelloWorld
+}
+
+function redeploy(){
+  #This seems to run the `docker run` command again?
+  ssh pi@192.168.1.217 "$PI_PROJECT_DIR/run.sh pi_stop"
+  docker start $TAG_NAME --attach
 }
 
 function pushToPi(){
-  scp -i ~/.ssh/id_rsa -v raspberry-pi pi@192.168.1.217:$PI_PROJECT_DIR/HelloWorld
-  scp -i ~/.ssh/id_rsa  -v run.sh pi@192.168.1.217:$PI_PROJECT_DIR/run.sh
-  ssh pi@192.168.1.217 "$PI_PROJECT_DIR/run.sh runOnPi"
+  echo "STAGE: Push to Pi"
+  scp -i ~/.ssh/id_rsa raspberry-pi pi@192.168.1.217:$PI_PROJECT_DIR/$EXECUTABLE_NAME
+  scp -i ~/.ssh/id_rsa run.sh pi@192.168.1.217:$PI_PROJECT_DIR/run.sh
+  echo "STAGE: Push to Pi done"
 }
 
-function runOnPi(){
- 
-  #These seem to be causing issues 
-  #pkill -f bin/swift
-  pkill -f HelloWorld ||
-
-  LD_LIBRARY_PATH=/home/pi/usr/lib/swift/linux $PI_PROJECT_DIR/HelloWorld
-
-#pkill -f run_script.sh;
-# When running, `ps aux` will show: .build/armv6-unknown-linux-gnueabihf/debug/swift-test
-  #/home/pi/usr/bin/swift run -j 1  
+function runPi(){
+  ssh pi@192.168.1.217 "$PI_PROJECT_DIR/run.sh pi_run"
 }  
 
-function redeploy(){
-  docker start $TAG_NAME --attach 
+function pi_run(){
+  LD_LIBRARY_PATH=/home/pi/usr/lib/swift/linux $PI_PROJECT_DIR/$EXECUTABLE_NAME
 }
+
+function pi_stop(){
+  pkill -f $EXECUTABLE_NAME ||
+}  
 
 function buildSwift(){
 
   originalDir="$(pwd)"
   stagingDir="/test"
-  echo "1"
-  buildDir="$stagingDir/.build_linux"
-  echo "2"
+  buildDirName=".build_linux"
+  buildDir="$stagingDir/$buildDirName"
+  echo ".build_linux contents: $(ls .build_linux)"
   rm -rf $stagingDir || echo "No staging directory to delete"
   mkdir $stagingDir || echo "Container exists"
+  echo "About to copy $stagingDir"
   cp -r * $stagingDir
   cd $stagingDir
 
   mkdir $buildDir || echo "Couldn't create $buildDir. Maybe already exists"
   swift build --build-path $buildDir
   executablePath="$buildDir/debug/raspberry-pi"
-  echo "Executable Path: $executablePath"
-  echo "Original Dir: $originalDir"
+  echo "About to copy $executablePath"
   cp $executablePath $originalDir
+  echo "About to copy $buildDir"
+  rm -rf $originalDir/$buildDirName 
   cp -r $buildDir $originalDir
-  #cd /
-  #mkdir test
-  #git clone https://github.com/gestrich/raspberry-pi.git
-  #cd raspberry-pi
-  #swift build
 }
-
-#To Run on Device
-#LD_LIBRARY_PATH=/home/pi/usr/lib/swift/linux ./HelloWorld
 
 
 # Check if the function exists
