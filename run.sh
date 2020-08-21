@@ -19,7 +19,8 @@ function deploy(){
   echo "STAGE: deploy start"
   docker stop $TAG_NAME
   docker rm $TAG_NAME
-  docker run --name $TAG_NAME --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest ./run.sh buildSwift 
+  #docker run --name $TAG_NAME --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest ./run.sh buildSwift 
+  docker run --name $TAG_NAME --volume "$(pwd)/:/app/src"  --workdir "/app/src/" bill-swift-hello-world:latest ./run.sh buildSwift 
   pushToPi
   runPi
   echo "STAGE: deploy done"
@@ -47,7 +48,7 @@ function pi_run(){
 }
 
 function pi_stop(){
-  pkill -f $EXECUTABLE_NAME ||
+  pkill -f -x $EXECUTABLE_NAME ||
 }  
 
 function buildSwift(){
