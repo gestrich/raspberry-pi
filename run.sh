@@ -3,18 +3,13 @@ set -e
 set -u
 
 TAG_NAME="pi-container"
-
+PI_PROJECT_DIR="/home/pi"
 function buildDockerImage(){
   #Build Docker image initially
   #docker build -t bill-swift-hello-world -f Dockerfile .
   ssh_key="$(cat ~/.ssh/id_rsa)"
   echo "$ssh_key"
   DOCKER_BUILDKIT=1 docker build -t bill-swift-hello-world -f Dockerfile --build-arg SSH_PRIVATE_KEY="$ssh_key" .
-}
-
-
-function redeploy(){
-  docker start $TAG_NAME --attach 
 }
 
 #Had to run ssh-add
@@ -28,15 +23,40 @@ function deploy(){
 
   #DOCKER_BUILDKIT=1 docker build --ssh default -t bill-swift-hello-world -f Dockerfile .
   #docker build -t bill-swift-hello-world -f Dockerfile .
+  echo "STAGE: deploy start"
   docker run --name $TAG_NAME --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest ./run.sh buildSwift 
-  scp -i ~/.ssh/id_rsa -v raspberry-pi pi@192.168.1.217:/home/pi/HelloWorld
+  pushToPi
+  echo "STAGE: deploy done"
   #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest pwd 
   #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest swift build --build-path .build_linux
   #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest swift build IOSVersions -c release
   #docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest swift build
   #docker run --rm bill-swift-hello-world:latest /bin/zsh ./build_swift.sh
   #scp .build/debug/raspberry-pi pi@192.168.1.217:/home/pi/HelloWorld
-} 
+}
+
+function pushToPi(){
+  scp -i ~/.ssh/id_rsa -v raspberry-pi pi@192.168.1.217:$PI_PROJECT_DIR/HelloWorld
+  scp -i ~/.ssh/id_rsa  -v run.sh pi@192.168.1.217:$PI_PROJECT_DIR/run.sh
+  ssh pi@192.168.1.217 "$PI_PROJECT_DIR/run.sh runOnPi"
+}
+
+function runOnPi(){
+ 
+  #These seem to be causing issues 
+  #pkill -f bin/swift
+  pkill -f HelloWorld ||
+
+  LD_LIBRARY_PATH=/home/pi/usr/lib/swift/linux $PI_PROJECT_DIR/HelloWorld
+
+#pkill -f run_script.sh;
+# When running, `ps aux` will show: .build/armv6-unknown-linux-gnueabihf/debug/swift-test
+  #/home/pi/usr/bin/swift run -j 1  
+}  
+
+function redeploy(){
+  docker start $TAG_NAME --attach 
+}
 
 function buildSwift(){
 

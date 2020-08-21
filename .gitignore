@@ -4,3 +4,5 @@
 /*.xcodeproj
 xcuserdata/
 id_rsa
+raspberry-pi
+.build_linux/
