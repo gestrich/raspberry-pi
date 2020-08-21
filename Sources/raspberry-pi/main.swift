@@ -49,6 +49,7 @@ func mcpVoltage(outputCode: UInt64, voltageReference: Double) -> Double {
 
 print("Raspberry Pi Tests Beginning")
 
+//Reset from command line with `gpio -g mode 17 out`
 var gpOut = GPIO(name: "P17",id: 17)
 
 gpOut.direction = .OUT
@@ -65,7 +66,7 @@ gpOut.direction = .OUT
 var turnOn = false
 
 
-repeatWithInterval(interval: 3) {
+repeatWithInterval(interval: 1) {
     let currentValue = gpOut.value
     let newValue = (currentValue == 1) ? 0 : 1
     gpOut.value = newValue
@@ -80,6 +81,7 @@ repeatWithInterval(interval: 3) {
 //    print("SPI value 2 = \(spiVal2)")
     
 }
+
 while true {
     
 }
