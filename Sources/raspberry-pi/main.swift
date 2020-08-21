@@ -12,7 +12,6 @@ func repeatWithInterval(interval: UInt32, block:@escaping () -> Void ){
 }
 
 func mcpReadData(a2dChannel: CUnsignedChar) -> UInt64 {
-    print("In MPC read data")
     let spis = SwiftyGPIO.hardwareSPIs(for:.RaspberryPiPlusZero)!
     let spi = spis[0]
     
@@ -65,21 +64,21 @@ gpOut.direction = .OUT
 
 var turnOn = false
 
-
 repeatWithInterval(interval: 1) {
+
+  //LED
     let currentValue = gpOut.value
     let newValue = (currentValue == 1) ? 0 : 1
     gpOut.value = newValue
-    print("Changing the value.")
-    let voltage = mcpVoltage(outputCode: mcpReadData(a2dChannel: 0), voltageReference: 3.2)
-    print("SPI value 0 = \(voltage)")
-    
-//    let spiVal1 = mcpReadData(a2dChannel: 1)
-//    print("SPI value 1 = \(spiVal1)")
-//
-//    let spiVal2 = mcpReadData(a2dChannel: 2)
-//    print("SPI value 2 = \(spiVal2)")
-    
+    //print("Changing the value.")
+   
+  //SPI 
+    let voltage = 3.2
+    let voltage0 = mcpVoltage(outputCode: mcpReadData(a2dChannel: 0), voltageReference: voltage)
+    let voltage1 = mcpVoltage(outputCode: mcpReadData(a2dChannel: 1), voltageReference: voltage)
+    let voltage0Percent = abs(Int(voltage0 / voltage * 100) - 100)
+    let voltage1Percent = abs(Int(voltage1 / voltage * 100) - 100)
+    print("\u{1B}[1A\u{1B}[KLight: \(voltage0Percent)% Temp: \(voltage1Percent)%") 
 }
 
 while true {
