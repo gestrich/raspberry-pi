@@ -6,6 +6,9 @@ TAG_NAME="pi-container"
 PI_PROJECT_DIR="/home/pi"
 EXECUTABLE_NAME="pi"
 
+#Shell into docker
+#docker run --rm -ti --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest /bin/bash
+
 function buildDockerImage(){
   #Build Docker image initially
   #docker build -t bill-swift-hello-world -f Dockerfile .
