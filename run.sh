@@ -26,7 +26,7 @@ function deploy(){
   #docker run --name $TAG_NAME --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest ./run.sh buildSwift 
   #docker run --name $TAG_NAME --volume "$(pwd)/:/app/src"  --workdir "/app/src/" bill-swift-hello-world:latest ./run.sh buildSwift 
   #docker run --volume "$(pwd)/:/app/src"  --workdir "/app/src/" bill-swift-hello-world:latest ./run.sh buildSwift 
-  docker run --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest ./run.sh buildSwift
+  docker run -ti --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest ./run.sh buildSwift
   stopPi
   pushToPi
   runPi
@@ -35,13 +35,13 @@ function deploy(){
 
 function redeploy(){
   #This seems to run the `docker run` command again?
-  ssh pi@192.168.1.217 "$PI_PROJECT_DIR/run.sh pi_stop"
+  ssh -tt pi@192.168.1.217 "$PI_PROJECT_DIR/run.sh pi_stop"
   docker start $TAG_NAME --attach
 }
 
 function stopPi(){
   echo "STAGE: Stopping Pi"
-  ssh pi@192.168.1.217 "$PI_PROJECT_DIR/run.sh pi_stop" || 
+  ssh -tt pi@192.168.1.217 "$PI_PROJECT_DIR/run.sh pi_stop" || 
   echo "STAGE: Stopping Pi done"
 }
 
