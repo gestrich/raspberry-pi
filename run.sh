@@ -2,6 +2,7 @@
 set -e
 set -u
 
+IMAGE_NAME="pi-image"
 TAG_NAME="pi-container"
 PI_PROJECT_DIR="/home/pi"
 EXECUTABLE_NAME="pi"
@@ -12,10 +13,7 @@ buildDirName=".build_linux"
 
 function buildDockerImage(){
   #Build Docker image initially
-  #docker build -t bill-swift-hello-world -f Dockerfile .
-  ssh_key="$(cat ~/.ssh/id_rsa)"
-  echo "$ssh_key"
-  DOCKER_BUILDKIT=1 docker build -t bill-swift-hello-world -f Dockerfile --build-arg SSH_PRIVATE_KEY="$ssh_key" .
+  docker build -t $IMAGE_NAME -f Dockerfile .
 }
 
 #Had to run ssh-add
@@ -26,7 +24,7 @@ function deploy(){
   #docker run --name $TAG_NAME --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest ./run.sh buildSwift 
   #docker run --name $TAG_NAME --volume "$(pwd)/:/app/src"  --workdir "/app/src/" bill-swift-hello-world:latest ./run.sh buildSwift 
   #docker run --volume "$(pwd)/:/app/src"  --workdir "/app/src/" bill-swift-hello-world:latest ./run.sh buildSwift 
-  docker run -ti --rm --volume "$(pwd)/:/src"  --workdir "/src/" bill-swift-hello-world:latest ./run.sh buildSwift
+  docker run -ti --rm --volume "$(pwd)/:/src"  --workdir "/src/" "$IMAGE_NAME":latest ./run.sh buildSwift
   stopPi
   pushToPi
   runPi
